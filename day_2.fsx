@@ -36,6 +36,11 @@ module Pt1 =
 
 module Pt2 =
   let solve() =
+    (*  _____ ___  ____   ___
+       |_   _/ _ \|  _ \ / _ \
+         | || | | | | | | | | |
+         | || |_| | |_| | |_| |
+         |_| \___/|____/ \___/  *)
     ()
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
