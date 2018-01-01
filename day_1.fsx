@@ -22,12 +22,23 @@ module Pt1 =
 
 module Pt2 =
   let solve() =
-    (*  _____ ___  ____   ___
-       |_   _/ _ \|  _ \ / _ \
-         | || | | | | | | | | |
-         | || |_| | |_| | |_| |
-         |_| \___/|____/ \___/  *)
-    ()
+    let input' = input |> Seq.map parseInt |> Seq.toList
+    let inputLength = input' |> Seq.length
+
+    input'
+    |> Seq.fold
+        (fun (sum, index) curr ->
+          let counterPart = input'.[(index + inputLength / 2) % inputLength]
+
+          let newSum =
+            if counterPart = curr then
+              sum + counterPart
+            else
+              sum
+
+          (newSum, index + 1))
+        (0, 0)
+    |> fst
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
