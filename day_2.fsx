@@ -36,12 +36,31 @@ module Pt1 =
 
 module Pt2 =
   let solve() =
-    (*  _____ ___  ____   ___
-       |_   _/ _ \|  _ \ / _ \
-         | || | | | | | | | | |
-         | || |_| | |_| | |_| |
-         |_| \___/|____/ \___/  *)
-    ()
+    rows
+    |> Seq.map (fun row ->
+        let cells = row.Split '\t' |> Seq.map Int32.Parse
+
+        cells
+        |> Seq.pick (fun x ->
+            cells
+            |> Seq.filter (fun y -> y <> x)
+            |> Seq.tryPick (fun y ->
+                let (sml, lrg) = if x > y then (y, x) else (x, y)
+                let quotient = (float)lrg / (float)sml
+
+                if quotient % 1.0 = 0.0
+                then
+                  let result = (int)quotient
+
+                  printfn "%i / %i = %i" lrg sml result
+
+                  Some(result)
+                else
+                  None
+            )
+        )
+    )
+    |> Seq.sum
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
