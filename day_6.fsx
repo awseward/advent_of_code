@@ -6,8 +6,6 @@ let exampleInput = @"0	2	7	0"
 let toBanks (tabbed: string) = tabbed.Split '\t' |> Seq.map Int32.Parse |> Array.ofSeq
 
 let redistribute oldBanks =
-  printfn "%A" oldBanks
-
   let startingIndex =
     oldBanks
     |> Array.max
@@ -40,7 +38,6 @@ let redistribute oldBanks =
 
         banks)
 
-
 module Pt1 =
   let solve() =
     (Set.empty, input |> toBanks)
@@ -54,20 +51,37 @@ module Pt1 =
           None
         else
           let newState = (encountered.Add(redistributed), redistributed)
-          Some <| (state, newState)
-    )
+
+          Some <| (state, newState))
     |> Array.ofSeq
     |> Seq.length
     |> ((+) 1)
 
 module Pt2 =
   let solve() =
-    (*  _____ ___  ____   ___
-       |_   _/ _ \|  _ \ / _ \
-         | || | | | | | | | | |
-         | || |_| | |_| | |_| |
-         |_| \___/|____/ \___/  *)
-    ()
+    let mutable loopSize = 0 // Egh...
+
+    (Map.empty, 1, input |> toBanks)
+    |> Seq.unfold (fun state ->
+        let (encountered, currentIter, currentBanks) = state
+        let redistributed = redistribute currentBanks
+
+        if encountered.ContainsKey(redistributed)
+        then
+          printfn "loop detected: %A" redistributed
+          let originalIter = encountered |> Map.find(redistributed)
+
+          loopSize <- currentIter - originalIter // Egh...
+
+          None
+        else
+          let newState = (encountered.Add(redistributed, currentIter), currentIter + 1, redistributed)
+
+          Some <| (state, newState))
+    |> Array.ofSeq
+    |> ignore
+
+    loopSize
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
