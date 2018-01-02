@@ -10,6 +10,8 @@ let exampleInput =
 -3
   ".Trim()
 
+let flip fn a b = fn b a
+
 module Pt1 =
   let solve() =
     let jumps =
@@ -17,17 +19,18 @@ module Pt1 =
       |> Seq.map Int32.Parse
       |> Array.ofSeq
     let jumpsCount = jumps |> Array.length
-    let isInBounds index =
-      0 <= index && index < jumpsCount
 
     let mutable currentIndex = 0
     let mutable stepCount = 0
 
-    while currentIndex |> isInBounds do
+    while 0 <= currentIndex && currentIndex < jumpsCount do
       let currentStepValue = jumps.[currentIndex]
       let nextIndex = currentIndex + currentStepValue
 
-      Array.set jumps currentIndex (currentStepValue + 1)
+      currentStepValue
+      |> (+) 1
+      |> Array.set jumps currentIndex
+
       currentIndex <- nextIndex
       stepCount <- stepCount + 1
 
@@ -40,19 +43,16 @@ module Pt2 =
       |> Seq.map Int32.Parse
       |> Array.ofSeq
     let jumpsCount = jumps |> Array.length
-    let isInBounds index =
-      0 <= index && index < jumpsCount
 
     let mutable currentIndex = 0
     let mutable stepCount = 0
 
-    while currentIndex |> isInBounds do
+    while 0 <= currentIndex && currentIndex < jumpsCount do
       let currentStepValue = jumps.[currentIndex]
       let nextIndex = currentIndex + currentStepValue
 
-      if currentStepValue >= 3
-      then currentStepValue - 1
-      else currentStepValue + 1
+      currentStepValue
+      |> if currentStepValue >= 3 then (flip (-) 1) else ((+) 1)
       |> Array.set jumps currentIndex
 
       currentIndex <- nextIndex
