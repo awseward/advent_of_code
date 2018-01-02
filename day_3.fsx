@@ -53,6 +53,60 @@ module Pt1 =
     stepsFromInputToMidpoint + stepsToMidpointFromBtmRt
 
 module Pt2 =
+  type Cell =
+    { Index: int
+      Value: int option }
+
+  type OuterRing =
+    { Rank:       int
+      SideLength: int
+      StartsAt:   int
+      Cells:      Cell list list }
+
+  type Ring =
+  | Core of Cell
+  | Outer of OuterRing
+
+  let emptyCell index = { Index = index; Value = None }
+  let square x = x * x
+
+  let withRank rank =
+    if rank < 0 then
+      failwith "Cannot have negative rank"
+    else if rank < 1 then
+      Core <| { Index = 1; Value = None }
+    else
+      let sideLength = oddInts |> Seq.item rank
+      let startsAt = oddInts |> Seq.item (rank - 1) |> square |> (+) 1
+      let cells =
+        let cellsSize = sideLength - 1
+        let endsAt = (startsAt + cellsSize * 4 - 1)
+
+        [startsAt..endsAt]
+        |> List.map emptyCell
+        |> List.chunkBySize cellsSize
+
+      { Rank       = rank
+        SideLength = sideLength
+        StartsAt   = startsAt
+        Cells      = cells } |> Outer
+
+  let withSideLength sideLength =
+    oddInts
+    |> Seq.findIndex ((=) sideLength)
+    |> withRank
+
+  let withIndex index =
+    oddInts
+    |> Seq.find (square >> (<=) index)
+    (* NOTE: Above line a bit confusing, but amounts to this:
+    |> Seq.find (fun n -> index <= (square n)) *)
+    |> withSideLength
+
+  withRank 0 |> printfn "withRank 0: %A"
+  withSideLength 7 |> printfn "withSideLength 7: %A"
+  withIndex 20 |> printfn "withIndex 20: %A"
+
   let solve() =
     (*  _____ ___  ____   ___
        |_   _/ _ \|  _ \ / _ \
