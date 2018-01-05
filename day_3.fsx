@@ -28,7 +28,10 @@ btmLft                   265149                      btmRt
 
 let input = 265149
 
-let oddInts = 1 |> Seq.unfold (fun i -> Some(i, i + 2))
+module Seq =
+  let unfoldBy fn = Seq.unfold (fun item -> Some(item, (fn item)))
+
+let oddInts = 1 |> Seq.unfoldBy ((+) 2)
 
 module Pt1 =
   let solve() =
