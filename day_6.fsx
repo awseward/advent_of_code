@@ -46,20 +46,17 @@ module Pt1 =
     input
     |> toBanks
     |> Seq.unfoldBy redistribute
+    |> Seq.mapi (fun idx banks -> (idx, banks))
     |> Seq.scan
-        (fun (banksSet: Set<int[]>, foundDuplicate) banks ->
+        (fun (banksSet: Set<int[]>, _) (idx, banks) ->
           if banksSet.Contains banks
           then
             printfn "loop detected: %A" banks
-            (banksSet, true)
+            (banksSet, Some(idx))
           else
-            (banksSet.Add(banks), false)
-        )
-        (Set.empty, false)
-    |> Seq.skip 1
-    |> Seq.mapi (fun idx (_, foundDuplicate) -> (idx, foundDuplicate))
-    |> Seq.find snd
-    |> fst
+            (banksSet.Add(banks), None))
+        (Set.empty, None)
+    |> Seq.pick snd
 
 module Pt2 =
   let solve() =
@@ -68,19 +65,17 @@ module Pt2 =
     |> Seq.unfoldBy redistribute
     |> Seq.mapi (fun idx banks -> (idx, banks))
     |> Seq.scan
-        (fun (banksMap: Map<int[], int>, duplicate) (idx, banks) ->
+        (fun (banksMap: Map<int[], int>, _) (idx, banks) ->
           if banksMap.ContainsKey banks
           then
             printfn "Loop detected: %A" banks
-            (banksMap, Some(idx, banks))
+            let loopSize = idx - banksMap.Item(banks)
+
+            (banksMap, Some(loopSize))
           else
             (banksMap.Add(banks, idx), None))
         (Map.empty, None)
-    |> Seq.find (snd >> Option.isSome)
-    |> fun (banksMap, dupOption) ->
-        let (dupIdx, dupBanks) = dupOption.Value
-
-        dupIdx - banksMap.Item(dupBanks)
+    |> Seq.pick snd
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
