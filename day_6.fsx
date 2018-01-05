@@ -59,33 +59,24 @@ module Pt1 =
 
 module Pt2 =
   let solve() =
-    (Map.empty, 1, input |> toBanks)
-    |> Seq.unfold (fun state ->
-        let (encountered, currentIter, currentBanks) = state
-        let redistributed = redistribute currentBanks
+    input
+    |> toBanks
+    |> Seq.unfold (fun banks -> Some(banks, banks |> redistribute))
+    |> Seq.mapi (fun idx banks -> (idx, banks))
+    |> Seq.scan
+        (fun (banksMap: Map<int[], int>, duplicate) (idx, banks) ->
+          if banksMap.ContainsKey banks
+          then
+            printfn "Loop detected: %A" banks
+            (banksMap, Some(idx, banks))
+          else
+            (banksMap.Add(banks, idx), None))
+        (Map.empty, None)
+    |> Seq.find (snd >> Option.isSome)
+    |> fun (banksMap, dupOption) ->
+        let (dupIdx, dupBanks) = dupOption.Value
 
-        if encountered.ContainsKey(redistributed)
-        then
-          printfn "loop detected: %A" redistributed
-          let originalIter = encountered |> Map.find(redistributed)
-
-          None
-        else
-          let newState = (encountered.Add(redistributed, currentIter), currentIter + 1, redistributed)
-
-          Some <| (state, newState))
-    |> Seq.last
-    |> (fun (map, lastIter, last) ->
-        let dup =
-          last
-          |> redistribute
-          (* NOTE: It's a little weird that we have to call redist twice... I
-           *       might be misusing Seq.fold just a little bit *)
-          |> redistribute
-
-        let originalIter = map |> Map.find dup
-
-        lastIter + 1 - originalIter)
+        dupIdx - banksMap.Item(dupBanks)
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
