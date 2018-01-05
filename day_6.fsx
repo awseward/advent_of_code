@@ -59,8 +59,6 @@ module Pt1 =
 
 module Pt2 =
   let solve() =
-    let mutable loopSize = 0 // Egh...
-
     (Map.empty, 1, input |> toBanks)
     |> Seq.unfold (fun state ->
         let (encountered, currentIter, currentBanks) = state
@@ -71,17 +69,23 @@ module Pt2 =
           printfn "loop detected: %A" redistributed
           let originalIter = encountered |> Map.find(redistributed)
 
-          loopSize <- currentIter - originalIter // Egh...
-
           None
         else
           let newState = (encountered.Add(redistributed, currentIter), currentIter + 1, redistributed)
 
           Some <| (state, newState))
-    |> Array.ofSeq
-    |> ignore
+    |> Seq.last
+    |> (fun (map, lastIter, last) ->
+        let dup =
+          last
+          |> redistribute
+          (* NOTE: It's a little weird that we have to call redist twice... I
+           *       might be misusing Seq.fold just a little bit *)
+          |> redistribute
 
-    loopSize
+        let originalIter = map |> Map.find dup
+
+        lastIter + 1 - originalIter)
 
 let solutions: obj list = [Pt1.solve(); Pt2.solve()]
 printfn "Solutions:"
