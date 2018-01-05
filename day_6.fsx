@@ -38,30 +38,34 @@ let redistribute oldBanks =
 
         banks)
 
+module Seq =
+  let unfoldBy fn = Seq.unfold (fun item -> Some(item, (fn item)))
+
 module Pt1 =
   let solve() =
-    (Set.empty, input |> toBanks)
-    |> Seq.unfold(fun state ->
-        let (encountered, currentBanks) = state
-        let redistributed = redistribute currentBanks
-
-        if encountered.Contains(redistributed)
-        then
-          printfn "loop detected: %A" redistributed
-          None
-        else
-          let newState = (encountered.Add(redistributed), redistributed)
-
-          Some <| (state, newState))
-    |> Array.ofSeq
-    |> Seq.length
-    |> ((+) 1)
+    input
+    |> toBanks
+    |> Seq.unfoldBy redistribute
+    |> Seq.scan
+        (fun (banksSet: Set<int[]>, foundDuplicate) banks ->
+          if banksSet.Contains banks
+          then
+            printfn "loop detected: %A" banks
+            (banksSet, true)
+          else
+            (banksSet.Add(banks), false)
+        )
+        (Set.empty, false)
+    |> Seq.skip 1
+    |> Seq.mapi (fun idx (_, foundDuplicate) -> (idx, foundDuplicate))
+    |> Seq.find snd
+    |> fst
 
 module Pt2 =
   let solve() =
     input
     |> toBanks
-    |> Seq.unfold (fun banks -> Some(banks, banks |> redistribute))
+    |> Seq.unfoldBy redistribute
     |> Seq.mapi (fun idx banks -> (idx, banks))
     |> Seq.scan
         (fun (banksMap: Map<int[], int>, duplicate) (idx, banks) ->
