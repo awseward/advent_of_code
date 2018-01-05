@@ -3,7 +3,9 @@ open System
 let input = @"10	3	15	10	5	15	5	15	9	2	5	8	5	2	3	6"
 let exampleInput = @"0	2	7	0"
 
-let toBanks (tabbed: string) = tabbed.Split '\t' |> Seq.map Int32.Parse |> Array.ofSeq
+let splitOnTab (tabbed: string) = tabbed.Split '\t'
+
+let toBanks = splitOnTab >> Array.map Int32.Parse
 
 let redistribute oldBanks =
   let startingIndex =
@@ -48,13 +50,13 @@ module Pt1 =
     |> Seq.unfoldBy redistribute
     |> Seq.mapi (fun idx banks -> (idx, banks))
     |> Seq.scan
-        (fun (banksSet: Set<int[]>, _) (idx, banks) ->
-          if banksSet.Contains banks
+        (fun (set: Set<int[]>, _) (idx, banks) ->
+          if set.Contains banks
           then
             printfn "loop detected: %A" banks
-            (banksSet, Some(idx))
+            (set, Some(idx))
           else
-            (banksSet.Add(banks), None))
+            (set.Add(banks), None))
         (Set.empty, None)
     |> Seq.pick snd
 
@@ -65,15 +67,15 @@ module Pt2 =
     |> Seq.unfoldBy redistribute
     |> Seq.mapi (fun idx banks -> (idx, banks))
     |> Seq.scan
-        (fun (banksMap: Map<int[], int>, _) (idx, banks) ->
-          if banksMap.ContainsKey banks
+        (fun (map: Map<int[], int>, _) (idx, banks) ->
+          if map.ContainsKey banks
           then
             printfn "Loop detected: %A" banks
-            let loopSize = idx - banksMap.Item(banks)
+            let loopSize = idx - map.Item(banks)
 
-            (banksMap, Some(loopSize))
+            (map, Some(loopSize))
           else
-            (banksMap.Add(banks, idx), None))
+            (map.Add(banks, idx), None))
         (Map.empty, None)
     |> Seq.pick snd
 
