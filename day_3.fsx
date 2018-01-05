@@ -37,9 +37,7 @@ module Pt1 =
   let solve() =
     let sideLength =
       oddInts
-      |> Seq.skipWhile (fun i -> i * i < input)
-      |> Seq.take 1
-      |> Seq.head
+      |> Seq.find (fun i -> i * i >= input)
 
     let nextSquare = sideLength * sideLength
 
