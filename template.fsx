@@ -1,26 +1,18 @@
+#load "util.fsx"
+
 open System
+open AdventOfCode.Util
 
-let input = () // FIXME
-
-module Pt1 =
-  let solve() =
-    (*  _____ ___  ____   ___
-       |_   _/ _ \|  _ \ / _ \
-         | || | | | | | | | | |
-         | || |_| | |_| | |_| |
-         |_| \___/|____/ \___/  *)
-    ()
-
-module Pt2 =
-  let solve() =
-    (*  _____ ___  ____   ___
-       |_   _/ _ \|  _ \ / _ \
-         | || | | | | | | | | |
-         | || |_| | |_| | |_| |
-         |_| \___/|____/ \___/  *)
-    ()
-
-let solutions: obj list = [Pt1.solve(); Pt2.solve()]
-printfn "Solutions:"
-solutions
-|> Seq.iteri (fun i -> printfn "  part %i: %A" i)
+checkParts <|
+  [ { new IPart<string, string> with
+        member this.Number = 1
+        member this.ActualInput = "TODO"
+        member this.Examples = []
+        member this.Solve input = "TODO"
+    }
+    { new IPart<string, string> with
+        member this.Number = 2
+        member this.ActualInput = "TODO"
+        member this.Examples = []
+        member this.Solve input = "TODO"
+    } ]
